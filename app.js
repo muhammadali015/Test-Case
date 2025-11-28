@@ -222,15 +222,34 @@ async function saveToLTM(signature, result, ltmData) {
 }
 
 
-// Simple root route so hitting http://localhost:PORT in a browser
-// shows a friendly message instead of "Cannot GET /".
+// Serve static files (index.html, etc.)
+app.use(express.static(path.join(__dirname)));
+
+// Root route - serve the frontend UI
 app.get('/', (req, res) => {
-  res
-    .status(200)
-    .json({
-      status: "ok",
-      message: "Testcase Generator Agent is running. Use POST /execute or GET /health."
-    });
+  const indexPath = path.join(__dirname, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      // Fallback to JSON if index.html not found
+      res.status(200).json({
+        status: "ok",
+        message: "Testcase Generator Agent is running. Use POST /execute or GET /health."
+      });
+    }
+  });
+});
+
+// API status endpoint
+app.get('/api/status', (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    message: "Testcase Generator Agent is running. Use POST /execute or GET /health.",
+    version: "1.2.0",
+    endpoints: {
+      health: "/health",
+      execute: "/execute (POST)"
+    }
+  });
 });
 
 app.get('/health', (req, res) => {
