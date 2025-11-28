@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Test Case Generator - Supervisor Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f0f14;
+            --bg-darker: #0a0a0e;
+            --bg-card: #16161d;
+            --bg-hover: #1c1c26;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.25);
+            --green: #22c55e;
+            --green-bg: rgba(34, 197, 94, 0.1);
+            --red: #ef4444;
+            --red-bg: rgba(239, 68, 68, 0.1);
+            --yellow: #eab308;
+            --yellow-bg: rgba(234, 179, 8, 0.1);
+            --blue: #3b82f6;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #2a2a35;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 280px 1fr 360px;
+            height: 100vh;
+        }
+
+        @media (max-width: 1200px) {
+            .app {
+                grid-template-columns: 1fr;
+            }
+            .sidebar, .details-panel {
+                display: none;
+            }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-darker);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .logo-text h1 {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .logo-text span {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .sidebar-section {
+            padding: 1rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .agent-card {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .agent-avatar {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .agent-info h3 {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .agent-status {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.7rem;
+            color: var(--green);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 0.75rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .quick-action:hover {
+            background: var(--bg-hover);
+            color: var(--text);
+            border-color: var(--accent);
+        }
+
+        /* Main Chat Area */
+        .chat-area {
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-dark);
+        }
+
+        .chat-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chat-title h2 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.75rem;
+            background: var(--green-bg);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--green);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            display: flex;
+            gap: 0.75rem;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .message.agent .message-avatar {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        }
+
+        .message.user .message-avatar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+
+        .message.system .message-avatar {
+            background: var(--yellow-bg);
+        }
+
+        .message-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.875rem 1rem;
+        }
+
+        .message.user .message-content {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .message.system .message-content {
+            background: var(--yellow-bg);
+            border-color: rgba(234, 179, 8, 0.3);
+        }
+
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .message-sender {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .message.user .message-sender {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .message-time {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .message.user .message-time {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .message-text {
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        /* Test Cases in Chat */
+        .test-results {
+            margin-top: 0.75rem;
+        }
+
+        .test-results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .test-results-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent-light);
+        }
+
+        .test-results-count {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .test-case-item {
+            background: var(--bg-darker);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .test-case-item:hover {
+            border-color: var(--accent);
+        }
+
+        .test-case-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .test-case-num {
+            width: 22px;
+            height: 22px;
+            background: var(--accent);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .test-case-desc {
+            flex: 1;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .test-case-status {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .status-2xx { background: var(--green-bg); color: var(--green); }
+        .status-4xx { background: var(--yellow-bg); color: var(--yellow); }
+        .status-5xx { background: var(--red-bg); color: var(--red); }
+
+        .view-all-btn {
+            width: 100%;
+            padding: 0.5rem;
+            background: transparent;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .view-all-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Input Area */
+        .chat-input-area {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            background: var(--bg-darker);
+        }
+
+        .input-options {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .input-option {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .input-option:hover, .input-option.active {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+
+        .input-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.875rem;
+            resize: none;
+            transition: all 0.15s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* File Input */
+        .file-input-wrapper {
+            display: none;
+            margin-bottom: 0.75rem;
+        }
+
+        .file-input-wrapper.active {
+            display: block;
+        }
+
+        .file-drop-zone {
+            padding: 1rem;
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .file-drop-zone:hover {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .file-drop-zone input {
+            display: none;
+        }
+
+        .file-drop-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .selected-files {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--accent);
+        }
+
+        /* Details Panel */
+        .details-panel {
+            background: var(--bg-darker);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .details-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .details-header h3 {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .details-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        .json-viewer {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        .json-viewer pre {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        .json-key { color: #f472b6; }
+        .json-string { color: #86efac; }
+        .json-number { color: #93c5fd; }
+        .json-boolean { color: #fcd34d; }
+        .json-null { color: #c4b5fd; }
+
+        .copy-json-btn {
+            width: 100%;
+            margin-top: 0.75rem;
+            padding: 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .copy-json-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Loading */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 0.5rem 0;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-4px); opacity: 1; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { border-color: var(--green); }
+        .toast.error { border-color: var(--red); }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">🧪</div>
+                    <div class="logo-text">
+                        <h1>Test Generator</h1>
+                        <span>Supervisor Console</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Connected Agent</div>
+                <div class="agent-card">
+                    <div class="agent-avatar">🤖</div>
+                    <div class="agent-info">
+                        <h3>TestCase Agent</h3>
+                        <div class="agent-status">
+                            <span class="status-dot"></span>
+                            <span>Online</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-title">Quick Actions</div>
+                <div class="quick-actions">
+                    <button class="quick-action" onclick="quickAction('git')">
+                        <span>🔗</span>
+                        <span>Analyze Git Repo</span>
+                    </button>
+                    <button class="quick-action" onclick="quickAction('zip')">
+                        <span>📦</span>
+                        <span>Upload ZIP Project</span>
+                    </button>
+                    <button class="quick-action" onclick="quickAction('files')">
+                        <span>📄</span>
+                        <span>Upload Code Files</span>
+                </button>
+                    <button class="quick-action" onclick="checkHealth()">
+                        <span>💓</span>
+                        <span>Health Check</span>
+                </button>
+            </div>
+        </div>
+
+            <div class="sidebar-section" style="margin-top: auto; border-top: 1px solid var(--border); padding-top: 1rem;">
+                <div class="sidebar-title">Server Status</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">
+                    <div style="margin-bottom: 0.25rem;">🌐 localhost:3000</div>
+                    <div id="server-status" style="color: var(--green);">● Connected</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat -->
+        <main class="chat-area">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <span style="font-size: 1.25rem;">💬</span>
+                    <h2>Agent Communication</h2>
+                </div>
+                <div class="connection-status">
+                    <span class="status-dot"></span>
+                    <span>Supervisor Active</span>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <!-- Welcome Message -->
+                <div class="message agent">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-sender">TestCase Generator Agent</span>
+                            <span class="message-time">Now</span>
+                        </div>
+                        <div class="message-text">
+                            Hello! I'm your AI Test Case Generator Agent. I can analyze your code and generate comprehensive test cases.<br><br>
+                            <strong>You can:</strong><br>
+                            • Paste a Git repository URL<br>
+                            • Upload a ZIP file<br>
+                            • Upload code files directly<br><br>
+                            What would you like to test today?
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="input-options">
+                    <button class="input-option active" data-mode="text" onclick="setInputMode('text')">
+                        <span>💬</span> Text
+                    </button>
+                    <button class="input-option" data-mode="git" onclick="setInputMode('git')">
+                        <span>🔗</span> Git URL
+                    </button>
+                    <button class="input-option" data-mode="zip" onclick="setInputMode('zip')">
+                        <span>📦</span> ZIP
+                    </button>
+                    <button class="input-option" data-mode="files" onclick="setInputMode('files')">
+                        <span>📄</span> Files
+                    </button>
+                </div>
+
+                <div class="file-input-wrapper" id="file-input-wrapper">
+                    <div class="file-drop-zone" onclick="document.getElementById('file-input').click()">
+                        <input type="file" id="file-input" multiple>
+                        <div class="file-drop-text">📁 Click to select files or drag & drop</div>
+                        <div class="selected-files" id="selected-files"></div>
+                    </div>
+        </div>
+
+                <div class="input-wrapper">
+                    <div class="input-container">
+                        <textarea 
+                            class="chat-input" 
+                            id="chat-input"
+                            placeholder="Enter a Git URL (e.g., https://github.com/user/repo.git) or describe what you want to test..."
+                            rows="1"
+                            onkeydown="handleKeyDown(event)"
+                        ></textarea>
+                    </div>
+                    <button class="send-btn" id="send-btn" onclick="sendMessage()">
+                        ➤
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Details Panel -->
+        <aside class="details-panel">
+            <div class="details-header">
+                <h3>📋 Test Case Details</h3>
+            </div>
+            <div class="details-content">
+                <div id="details-placeholder" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;">📋</div>
+                    <p style="font-size: 0.85rem;">Generated test cases will appear here</p>
+                </div>
+                <div id="details-content" style="display: none;">
+                    <div class="detail-section">
+                        <div class="detail-section-title">Summary</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                            <div style="background: var(--bg-card); padding: 0.75rem; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent);" id="total-count">0</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">Test Cases</div>
+                            </div>
+                            <div style="background: var(--bg-card); padding: 0.75rem; border-radius: 8px; text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--green);" id="framework-name">Jest</div>
+                                <div style="font-size: 0.7rem; color: var(--text-muted);">Framework</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-section-title">Full JSON Output</div>
+                        <div class="json-viewer">
+                            <pre id="json-output"></pre>
+                        </div>
+                        <button class="copy-json-btn" onclick="copyJSON()">📋 Copy JSON</button>
+                    </div>
+                </div>
+        </div>
+        </aside>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // === Configuration ===
+        const AGENT_URL = 'http://localhost:3000';
+        let currentMode = 'text';
+        let selectedFiles = [];
+        let currentTestCases = [];
+
+        // === DOM Elements ===
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const fileInput = document.getElementById('file-input');
+
+        // === Input Mode ===
+        function setInputMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.input-option').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            
+            const fileWrapper = document.getElementById('file-input-wrapper');
+            fileWrapper.classList.toggle('active', mode === 'zip' || mode === 'files');
+            
+            if (mode === 'zip') {
+                fileInput.accept = '.zip';
+                fileInput.multiple = false;
+                chatInput.placeholder = 'Add a message (optional)...';
+            } else if (mode === 'files') {
+                fileInput.accept = '.js,.ts,.py,.java,.go,.php,.cs,.rb,.rs,.c,.cpp';
+                fileInput.multiple = true;
+                chatInput.placeholder = 'Add a message (optional)...';
+            } else if (mode === 'git') {
+                chatInput.placeholder = 'Enter Git repository URL (e.g., https://github.com/user/repo.git)';
+            } else {
+                chatInput.placeholder = 'Describe what you want to test or enter a Git URL...';
+            }
+        }
+
+        function quickAction(type) {
+            setInputMode(type);
+            chatInput.focus();
+        }
+
+        // === File Handling ===
+        fileInput.addEventListener('change', (e) => {
+            selectedFiles = Array.from(e.target.files);
+            const names = selectedFiles.map(f => f.name).join(', ');
+            document.getElementById('selected-files').textContent = names ? `Selected: ${names}` : '';
+        });
+
+        // === Message Handling ===
+        function addMessage(type, sender, content, testCases = null) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const avatar = type === 'user' ? '👤' : type === 'agent' ? '🤖' : '⚡';
+            
+            let testCasesHTML = '';
+            if (testCases && testCases.length > 0) {
+                const preview = testCases.slice(0, 3);
+                testCasesHTML = `
+                    <div class="test-results">
+                        <div class="test-results-header">
+                            <span class="test-results-title">Generated Test Cases</span>
+                            <span class="test-results-count">${testCases.length} total</span>
+                        </div>
+                        ${preview.map((tc, i) => {
+                            const status = tc.expected?.status_code || 200;
+                            const statusClass = status < 300 ? 'status-2xx' : status < 500 ? 'status-4xx' : 'status-5xx';
+                            return `
+                                <div class="test-case-item" onclick="showTestCase(${i})">
+                                    <div class="test-case-header">
+                                        <span class="test-case-num">${i + 1}</span>
+                                        <span class="test-case-desc">${tc.description || 'Test Case'}</span>
+                                        <span class="test-case-status ${statusClass}">${status}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                        ${testCases.length > 3 ? `<button class="view-all-btn" onclick="showAllTestCases()">View all ${testCases.length} test cases →</button>` : ''}
+                    </div>
+                `;
+            }
+
+            const messageHTML = `
+                <div class="message ${type}">
+                    <div class="message-avatar">${avatar}</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-sender">${sender}</span>
+                            <span class="message-time">${time}</span>
+                        </div>
+                        <div class="message-text">${content}</div>
+                        ${testCasesHTML}
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const html = `
+                <div class="message agent" id="typing-indicator">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <div class="typing-indicator">
+                            <span class="typing-dot"></span>
+                            <span class="typing-dot"></span>
+                            <span class="typing-dot"></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', html);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
+
+        // === API Communication ===
+        async function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        function uuid() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                const r = Math.random() * 16 | 0;
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+        }
+
+        async function sendMessage() {
+            const text = chatInput.value.trim();
+            
+            if (!text && selectedFiles.length === 0) {
+                showToast('Please enter a message or select files', 'error');
+                return;
+            }
+
+            // Detect if it's a git URL
+            const isGitUrl = /https?:\/\/.+\.git$/i.test(text);
+            
+            // Build user message
+            let userMessage = text;
+            if (selectedFiles.length > 0) {
+                userMessage = `${text ? text + '\n\n' : ''}📎 Attached: ${selectedFiles.map(f => f.name).join(', ')}`;
+            }
+            
+            addMessage('user', 'You (Supervisor)', userMessage);
+            chatInput.value = '';
+            
+            // Show typing indicator
+            addTypingIndicator();
+            sendBtn.disabled = true;
+
+            try {
+                // Build task payload
+                const taskPayload = {
+                    task_type: 'generate_test_cases',
+                    language: 'javascript',
+                    git_repo_url: null,
+                    zip_file_base64: null,
+                    code_files_base64: [],
+                    payload: {
+                        api: 'auto',
+                        method: 'POST',
+                        fields: []
+                    }
+                };
+
+                // Handle different input types
+                if (isGitUrl || currentMode === 'git') {
+                    taskPayload.git_repo_url = text;
+                } else if (currentMode === 'zip' && selectedFiles.length > 0) {
+                    taskPayload.zip_file_base64 = await readFileAsBase64(selectedFiles[0]);
+                } else if ((currentMode === 'files' || selectedFiles.length > 0) && selectedFiles.length > 0) {
+                    for (const file of selectedFiles) {
+                        taskPayload.code_files_base64.push({
+                                file_path: file.name,
+                            content_base64: await readFileAsBase64(file)
+                        });
+                    }
+                } else if (text) {
+                    // Try to detect if it's a git URL anyway
+                    if (text.includes('github.com') || text.includes('gitlab.com') || text.includes('.git')) {
+                        taskPayload.git_repo_url = text.endsWith('.git') ? text : text + '.git';
+                    }
+                }
+
+                // Build supervisor message
+            const supervisorMessage = {
+                    message_id: uuid(),
+                    sender: 'supervisor',
+                    recipient: 'testcase_generator_agent',
+                    type: 'task_assignment',
+                timestamp: new Date().toISOString(),
+                    'results/task': taskPayload
+                };
+
+                // Send request
+                const response = await fetch(`${AGENT_URL}/execute`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(supervisorMessage)
+                });
+
+                const result = await response.json();
+                removeTypingIndicator();
+                
+                if (!response.ok || result.status === 'failed') {
+                    throw new Error(result['results/task']?.error_details || result.message || 'Generation failed');
+                }
+
+                const taskResult = result['results/task'];
+                currentTestCases = taskResult.generated_test_cases || [];
+                
+                // Update details panel
+                updateDetailsPanel(taskResult);
+
+                // Build response message
+                const statusMsg = taskResult.status_message || `Generated ${currentTestCases.length} test cases`;
+                addMessage('agent', 'TestCase Generator Agent', statusMsg, currentTestCases);
+
+                // Clear selected files
+                selectedFiles = [];
+                document.getElementById('selected-files').textContent = '';
+                fileInput.value = '';
+
+                showToast('Test cases generated successfully!', 'success');
+
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('system', 'System', `❌ Error: ${error.message}`);
+                showToast(error.message, 'error');
+            } finally {
+                sendBtn.disabled = false;
+            }
+        }
+
+        // === Details Panel ===
+        function updateDetailsPanel(result) {
+            document.getElementById('details-placeholder').style.display = 'none';
+            document.getElementById('details-content').style.display = 'block';
+            
+            document.getElementById('total-count').textContent = currentTestCases.length;
+            document.getElementById('framework-name').textContent = result.test_cases?.framework?.split('+')[0] || 'Jest';
+            
+            document.getElementById('json-output').innerHTML = syntaxHighlight(currentTestCases);
+        }
+
+        function syntaxHighlight(obj) {
+            const json = JSON.stringify(obj, null, 2);
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, match => {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    cls = /:$/.test(match) ? 'json-key' : 'json-string';
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return `<span class="${cls}">${match}</span>`;
+            });
+        }
+
+        function showTestCase(index) {
+            const tc = currentTestCases[index];
+            if (tc) {
+                addMessage('agent', 'TestCase Generator Agent', 
+                    `<strong>Test Case #${index + 1}</strong><br><br>` +
+                    `<strong>Description:</strong> ${tc.description}<br><br>` +
+                    `<strong>Input:</strong><pre style="margin-top: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">${JSON.stringify(tc.input, null, 2)}</pre>` +
+                    `<strong>Expected:</strong><pre style="margin-top: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">${JSON.stringify(tc.expected, null, 2)}</pre>`
+                );
+            }
+        }
+
+        function showAllTestCases() {
+            currentTestCases.forEach((tc, i) => {
+                setTimeout(() => showTestCase(i), i * 100);
+            });
+        }
+
+        function copyJSON() {
+            navigator.clipboard.writeText(JSON.stringify(currentTestCases, null, 2))
+                .then(() => showToast('JSON copied to clipboard!', 'success'))
+                .catch(() => showToast('Failed to copy', 'error'));
+        }
+
+        // === Health Check ===
+        async function checkHealth() {
+            addMessage('user', 'You (Supervisor)', '💓 Checking agent health...');
+            addTypingIndicator();
+            
+            try {
+                const response = await fetch(`${AGENT_URL}/health`);
+                const data = await response.json();
+                removeTypingIndicator();
+                addMessage('agent', 'TestCase Generator Agent', 
+                    `✅ <strong>Health Check Passed</strong><br><br>` +
+                    `<strong>Status:</strong> ${data.status}<br>` +
+                    `<strong>Agent:</strong> ${data.agent_name}`
+                );
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('system', 'System', `❌ Health check failed: ${error.message}`);
+            }
+        }
+
+        // === Utilities ===
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Auto-resize textarea
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Check server status on load
+        fetch(`${AGENT_URL}/health`)
+            .then(r => r.json())
+            .then(() => {
+                document.getElementById('server-status').innerHTML = '● Connected';
+                document.getElementById('server-status').style.color = 'var(--green)';
+            })
+            .catch(() => {
+                document.getElementById('server-status').innerHTML = '● Disconnected';
+                document.getElementById('server-status').style.color = 'var(--red)';
+            });
+    </script>
+</body>
+</html>

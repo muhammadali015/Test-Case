@@ -1,0 +1,45 @@
+# Render Blueprint - AI Test Case Generator Agent
+# Deploy with: Connect GitHub repo to Render and select this blueprint
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  # Main Web Service - AI Test Case Generator Agent
+  - type: web
+    name: ai-testcase-agent
+    runtime: node
+    region: oregon  # or singapore, frankfurt, ohio
+    plan: free      # free, starter, standard, pro
+    
+    # Build Configuration
+    buildCommand: npm install
+    startCommand: npm start
+    
+    # Environment Variables
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: GEMINI_API_KEY
+        sync: false  # Set manually in Render dashboard for security
+    
+    # Health Check
+    healthCheckPath: /health
+    
+    # Auto-deploy on push to main branch
+    autoDeploy: true
+    
+    # Branch to deploy
+    branch: main
+    
+    # Root directory (if monorepo)
+    # rootDir: ./
+    
+    # Scaling (for paid plans)
+    # numInstances: 1
+    # scaling:
+    #   minInstances: 1
+    #   maxInstances: 3
+    #   targetMemoryPercent: 75
+    #   targetCPUPercent: 75
+
