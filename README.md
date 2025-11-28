@@ -5,6 +5,11 @@ A fully functional AI-powered agent that generates comprehensive test cases from
 ![Node.js](https://img.shields.io/badge/Node.js-v18+-green)
 ![Express](https://img.shields.io/badge/Express-4.x-blue)
 ![Gemini AI](https://img.shields.io/badge/AI-Gemini%202.5-purple)
+![Deployed](https://img.shields.io/badge/Render-Deployed-success)
+
+## 🌐 Live Demo
+
+**Agent URL:** [https://test-case-ks9p.onrender.com](https://test-case-ks9p.onrender.com)
 
 ---
 
@@ -55,13 +60,7 @@ A fully functional AI-powered agent that generates comprehensive test cases from
   "results/task": {
     "status_message": "Generated 15 test cases for POST /api/login",
     "generated_test_cases": [...],
-    "test_cases": {
-      "framework": "jest+supertest",
-      "target_language": "javascript",
-      "api": "/api/login",
-      "method": "POST",
-      "scenarios_count": 15
-    },
+    "test_cases": {...},
     "coverage_analysis": "...",
     "recommendations": "..."
   },
@@ -71,72 +70,14 @@ A fully functional AI-powered agent that generates comprehensive test cases from
 
 ---
 
-## 🚀 Quick Start
-
-### 1. Install Dependencies
-```bash
-npm install
-```
-
-### 2. Configure Environment
-Create a `.env` file:
-```env
-PORT=3000
-GEMINI_API_KEY=your_google_gemini_api_key
-```
-
-### 3. Start the Server
-```bash
-npm start
-```
-
-### 4. Verify It's Running
-```bash
-curl http://localhost:3000/health
-```
-
-Response:
-```json
-{"status":"I'm up","agent_name":"Testcase Generator Agent (Smart LTM)"}
-```
-
----
-
 ## 📋 API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/` | GET | Status check - confirms agent is running |
+| `/` | GET | Web UI - Supervisor Chat Console |
 | `/health` | GET | Health check - returns agent status |
 | `/execute` | POST | Main endpoint - accepts task assignments |
-
----
-
-## 🧪 Running Integration Tests
-
-The project includes a comprehensive integration test suite:
-
-```bash
-# Start the server first
-npm start
-
-# In another terminal, run tests
-npm test
-```
-
-Or run directly:
-```bash
-node tests/integration.test.js
-```
-
-### Test Coverage
-- ✅ Health Check Endpoint
-- ✅ Root Endpoint Status
-- ✅ Supervisor Handshake Protocol
-- ✅ Test Case Generation
-- ✅ Error Handling
-- ✅ Input Validation
-- ✅ Coverage Analysis
+| `/api/status` | GET | API status information |
 
 ---
 
@@ -184,103 +125,216 @@ The agent accepts code from three sources:
 
 ---
 
-## 🎯 Generated Test Case Format
+## 📊 Detailed Output Example
 
-Each test case follows this structure:
-
-```json
-{
-  "description": "Valid input returns success response",
-  "input": {
-    "api": "/api/login",
-    "method": "POST",
-    "headers": { "Content-Type": "application/json" },
-    "body": {
-      "email": "user@example.com",
-      "password": "Str0ngP@ss!"
-    }
-  },
-  "expected": {
-    "status_code": 200,
-    "message": "Login successful"
-  }
-}
-```
-
----
-
-## 🔧 Supported Test Frameworks
-
-The agent generates runnable test files for multiple frameworks:
-
-| Language | Framework | File Extension |
-|----------|-----------|----------------|
-| JavaScript/TypeScript | Jest + Supertest | `.test.js` |
-| Python | pytest | `test_*.py` |
-| Java | JUnit 5 | `Test*.java` |
-| PHP | PHPUnit | `*Test.php` |
-| Go | testing | `*_test.go` |
-
----
-
-## 🛡️ Features
-
-- **AI-Powered**: Uses Google Gemini 2.5 for intelligent test generation
-- **Multi-Source Input**: Git repos, ZIP files, or individual files
-- **Auto-Detection**: Automatically detects endpoints from code
-- **LTM Caching**: Long-term memory to avoid redundant API calls
-- **Rate Limiting**: 10 requests per minute protection
-- **Input Validation**: Validates all incoming requests
-- **Security**: Path traversal protection for file uploads
-
----
-
-## 📊 Example Request/Response
-
-### Full Example Request
+### Full Request
 ```bash
-curl -X POST http://localhost:3000/execute \
+curl -X POST https://test-case-ks9p.onrender.com/execute \
   -H "Content-Type: application/json" \
   -d '{
-    "message_id": "test-123",
+    "message_id": "sup-001",
     "sender": "supervisor",
     "recipient": "testcase_generator_agent",
     "type": "task_assignment",
-    "timestamp": "2025-01-01T00:00:00Z",
+    "timestamp": "2025-01-15T10:30:00Z",
     "results/task": {
       "task_type": "generate_test_cases",
       "language": "javascript",
       "payload": {
-        "api": "/api/users",
+        "api": "/api/users/register",
         "method": "POST",
-        "fields": ["email", "password", "name"],
-        "requires_auth": true
+        "fields": ["username", "email", "password"],
+        "requires_auth": false
       }
     }
   }'
 ```
 
-### Full Example Response
+### Full Response
 ```json
 {
-  "message_id": "test-agent-a1b2c3d4-...",
+  "message_id": "test-agent-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "sender": "testcase_generator_agent",
   "recipient": "supervisor",
   "type": "task_response",
-  "related_message_id": "test-123",
+  "related_message_id": "sup-001",
   "status": "completed",
   "results/task": {
-    "status_message": "Generated 12 test cases for POST /api/users",
+    "status_message": "Generated 12 test cases for POST /api/users/register",
     "generated_test_cases": [
       {
         "description": "Valid input returns success response",
         "input": {
-          "api": "/api/users",
+          "api": "/api/users/register",
+          "method": "POST",
+          "body": {
+            "username": "test_user",
+            "email": "user@example.com",
+            "password": "Str0ngP@ss!"
+          }
+        },
+        "expected": {
+          "status_code": 201,
+          "message": "Request processed successfully"
+        }
+      },
+      {
+        "description": "Missing username triggers validation error",
+        "input": {
+          "api": "/api/users/register",
           "method": "POST",
           "body": {
             "email": "user@example.com",
-            "password": "Str0ngP@ss!",
-            "name": "name_value"
+            "password": "Str0ngP@ss!"
+          }
+        },
+        "expected": {
+          "status_code": 400,
+          "message": "username is required"
+        }
+      },
+      {
+        "description": "Missing email triggers validation error",
+        "input": {
+          "api": "/api/users/register",
+          "method": "POST",
+          "body": {
+            "username": "test_user",
+            "password": "Str0ngP@ss!"
+          }
+        },
+        "expected": {
+          "status_code": 400,
+          "message": "email is required"
+        }
+      },
+      {
+        "description": "Missing password triggers validation error",
+        "input": {
+          "api": "/api/users/register",
+          "method": "POST",
+          "body": {
+            "username": "test_user",
+            "email": "user@example.com"
+          }
+        },
+        "expected": {
+          "status_code": 400,
+          "message": "password is required"
+        }
+      },
+      {
+        "description": "Invalid data type for username",
+        "input": {
+          "api": "/api/users/register",
+          "method": "POST",
+          "body": {
+            "username": 999999,
+            "email": "user@example.com",
+            "password": "Str0ngP@ss!"
+          }
+        },
+        "expected": {
+          "status_code": 400,
+          "message": "username must be a valid string"
+        }
+      },
+      {
+        "description": "Invalid data type for email",
+        "input": {
+          "api": "/api/users/register",
+          "method": "POST",
+          "body": {
+            "username": "test_user",
+            "email": 999999,
+            "password": "Str0ngP@ss!"
+          }
+        },
+        "expected": {
+          "status_code": 400,
+          "message": "email must be a valid string"
+        }
+      },
+      {
+        "description": "username set to empty string",
+        "input": {
+          "api": "/api/users/register",
+          "method": "POST",
+          "body": {
+            "username": "",
+            "email": "user@example.com",
+            "password": "Str0ngP@ss!"
+          }
+        },
+        "expected": {
+          "status_code": 400,
+          "message": "username cannot be empty"
+        }
+      },
+      {
+        "description": "email set to empty string",
+        "input": {
+          "api": "/api/users/register",
+          "method": "POST",
+          "body": {
+            "username": "test_user",
+            "email": "",
+            "password": "Str0ngP@ss!"
+          }
+        },
+        "expected": {
+          "status_code": 400,
+          "message": "email cannot be empty"
+        }
+      },
+      {
+        "description": "password set to special characters",
+        "input": {
+          "api": "/api/users/register",
+          "method": "POST",
+          "body": {
+            "username": "test_user",
+            "email": "user@example.com",
+            "password": "!@#$%^&*()__TEST__"
+          }
+        },
+        "expected": {
+          "status_code": 400,
+          "message": "password contains unsupported characters"
+        }
+      },
+      {
+        "description": "Calling GET /api/users/register should return method not allowed",
+        "input": {
+          "api": "/api/users/register",
+          "method": "GET"
+        },
+        "expected": {
+          "status_code": 405,
+          "message": "Method Not Allowed"
+        }
+      },
+      {
+        "description": "Empty request body should fail validation",
+        "input": {
+          "api": "/api/users/register",
+          "method": "POST",
+          "body": {}
+        },
+        "expected": {
+          "status_code": 400,
+          "message": "Body cannot be empty"
+        }
+      },
+      {
+        "description": "Alternative valid input variation returns success",
+        "input": {
+          "api": "/api/users/register",
+          "method": "POST",
+          "body": {
+            "username": "John Doe",
+            "email": "test2@example.com",
+            "password": "Str0ngP@ss!"
           }
         },
         "expected": {
@@ -292,133 +346,121 @@ curl -X POST http://localhost:3000/execute \
     "test_cases": {
       "framework": "jest+supertest",
       "target_language": "javascript",
-      "api": "/api/users",
+      "api": "/api/users/register",
       "method": "POST",
       "scenarios_count": 12
     },
-    "coverage_analysis": "{...}",
-    "recommendations": "Use the generated jest+supertest suite...",
+    "coverage_analysis": "{\"api\":\"/api/users/register\",\"method\":\"POST\",\"total_generated_tests\":12,\"fields\":[\"username\",\"email\",\"password\"],\"covered_scenarios\":[\"happy_path\",\"missing_required_fields\",\"invalid_types\",\"http_method_mismatch\",\"empty_body\"],\"missing_scenarios\":[],\"notes\":\"Coverage is inferred from generated scenarios only.\"}",
+    "recommendations": "Use the generated jest+supertest suite as a starting point and refine assertions to match your actual response schema for POST /api/users/register. Add integration tests that hit the real database. Introduce tests for failure modes of external services. Consider splitting the generated suite into route-specific files.",
     "ltm_hit": false
   },
-  "timestamp": "2025-01-01T00:00:01Z"
+  "timestamp": "2025-01-15T10:30:05.123Z"
 }
 ```
 
 ---
 
-## 🏗️ Project Structure
+## 🎯 Generated Test Case Schema
 
+Each test case follows this exact structure:
+
+```json
+{
+  "description": "Human-readable test description",
+  "input": {
+    "api": "/endpoint/path",
+    "method": "POST|GET|PUT|DELETE|PATCH",
+    "headers": {
+      "Authorization": "Bearer token"
+    },
+    "body": {
+      "field1": "value1",
+      "field2": "value2"
+    }
+  },
+  "expected": {
+    "status_code": 200,
+    "message": "Expected response message"
+  }
+}
 ```
-Test-Case-main/
-├── app.js                    # Main server application
-├── package.json              # Dependencies and scripts
-├── .env                      # Environment variables
-├── index.html                # Web UI
-├── lib/
-│   └── generate_test_files.js  # Multi-framework test file generator
-├── tests/
-│   └── integration.test.js   # Integration test suite
-├── LTM/
-│   └── memory.json           # Long-term memory cache
-└── tools/
-    └── write_ltm.js          # LTM utility
+
+---
+
+## 🔧 Test Scenarios Generated
+
+| Scenario Type | Description |
+|---------------|-------------|
+| ✅ **Happy Path** | Valid input returns success |
+| ❌ **Missing Fields** | Each required field missing |
+| ⚠️ **Invalid Types** | Wrong data types for fields |
+| 📏 **Boundary Values** | Empty, max length, special chars |
+| 🔐 **Auth Tests** | Missing/invalid authorization |
+| 🚫 **Method Mismatch** | Wrong HTTP method (405) |
+| 📭 **Empty Body** | Empty request body |
+
+---
+
+## 🔧 Supported Test Frameworks
+
+| Language | Framework | Output File |
+|----------|-----------|-------------|
+| JavaScript/TypeScript | Jest + Supertest | `*.test.js` |
+| Python | pytest | `test_*.py` |
+| Java | JUnit 5 | `Test*.java` |
+| PHP | PHPUnit | `*Test.php` |
+| Go | testing | `*_test.go` |
+
+---
+
+## 🚀 Local Development
+
+### 1. Install Dependencies
+```bash
+npm install
 ```
 
----
+### 2. Configure Environment
+```bash
+# Create .env file
+PORT=3000
+GEMINI_API_KEY=your_api_key
+```
 
-## 🔒 Environment Variables
+### 3. Start Server
+```bash
+npm start
+```
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `PORT` | No | Server port (default: 3000) |
-| `GEMINI_API_KEY` | Yes* | Google Gemini API key |
-| `NODE_ENV` | No | Environment (production/development) |
-
-*Without API key, agent uses rule-based generation only.
-
----
-
-## 🚀 Deployment
-
-### Deploy to Render (Recommended)
-
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
-
-**Option 1: One-Click Deploy**
-1. Fork this repository to your GitHub
-2. Go to [Render Dashboard](https://dashboard.render.com/)
-3. Click "New" → "Blueprint"
-4. Connect your GitHub repo
-5. Render will auto-detect `render.yaml`
-6. Add `GEMINI_API_KEY` in Environment Variables
-7. Click "Apply"
-
-**Option 2: Manual Deploy**
-1. Go to [Render Dashboard](https://dashboard.render.com/)
-2. Click "New" → "Web Service"
-3. Connect your GitHub repository
-4. Configure:
-   - **Name**: `ai-testcase-agent`
-   - **Runtime**: `Node`
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
-5. Add Environment Variable: `GEMINI_API_KEY`
-6. Click "Create Web Service"
-
-Your agent will be live at: `https://ai-testcase-agent.onrender.com`
+### 4. Access
+- **UI**: http://localhost:3000
+- **Health**: http://localhost:3000/health
 
 ---
 
-### Deploy with Docker
+## 🧪 Running Integration Tests
 
 ```bash
-# Build the image
-docker build -t testcase-agent .
-
-# Run the container
-docker run -p 3000:3000 \
-  -e GEMINI_API_KEY=your_api_key \
-  -e NODE_ENV=production \
-  testcase-agent
+npm test
 ```
 
-**Docker Compose:**
-```yaml
-version: '3.8'
-services:
-  testcase-agent:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - NODE_ENV=production
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-```
+Tests verify:
+- ✅ Health Check Endpoint
+- ✅ Supervisor Handshake Protocol
+- ✅ Test Case Generation
+- ✅ Error Handling
+- ✅ Input Validation
 
 ---
 
-### Deploy to Other Platforms
+## 🛡️ Features
 
-**Heroku:**
-```bash
-heroku create ai-testcase-agent
-heroku config:set GEMINI_API_KEY=your_key
-git push heroku main
-```
-
-**Railway:**
-1. Connect GitHub repo at [railway.app](https://railway.app)
-2. Add `GEMINI_API_KEY` environment variable
-3. Deploy automatically
-
-**Vercel (Serverless):**
-> Note: May require modifications for serverless architecture
+- **AI-Powered**: Uses Google Gemini 2.5 for intelligent test generation
+- **Multi-Source Input**: Git repos, ZIP files, or individual files
+- **Auto-Detection**: Automatically detects endpoints from code
+- **LTM Caching**: Long-term memory to avoid redundant API calls
+- **Rate Limiting**: 10 requests per minute protection
+- **Multi-Framework**: Generates tests for 5+ frameworks
 
 ---
 
@@ -426,21 +468,13 @@ git push heroku main
 
 ISC License
 
----
-
 ## 👤 Author
 
 Muhammad Ali
 
 ---
 
-## 🤝 Integration with Supervisor
+## 🔗 Links
 
-This agent is designed to work within a multi-agent supervisor system:
-
-1. **Registration**: Agent registers with supervisor on startup
-2. **Task Assignment**: Supervisor sends `task_assignment` messages
-3. **Task Execution**: Agent processes the task
-4. **Task Response**: Agent returns `task_response` with results
-
-The agent follows the exact handshake protocol specified in the system requirements.
+- **Live Agent**: [https://test-case-generator-agent.onrender.com](https://test-case-generator-agent.onrender.com/)
+- **GitHub**: [https://github.com/muhammadali015/Test-Case](https://github.com/muhammadali015/Test-Case)
